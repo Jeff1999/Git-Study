@@ -1,5 +1,7 @@
 # Git 总结
 
+[TOC]
+
 ## 1. Git 简介
 
 - Git 是目前最先进的分布式版本控制系统
@@ -771,5 +773,32 @@ Branch 'master' set up to track remote branch 'master' from 'origin'.
 
 ```bash
 $ git push origin master
+```
+
+## 13. 从远程库克隆
+
+首先，登陆 GitHub 并创建一个新的仓库 `gitskills`：
+
+![github-init-repo](https://www.liaoxuefeng.com/files/attachments/919021808263616/0)
+
+![github-init-repo-2](https://www.liaoxuefeng.com/files/attachments/919021836828288/0)
+
+下一步，通过命令 `git clone` 从远程库克隆一个本地库：
+
+```bash
+$ git clone git@github.com:Jeff1999/gitskills.git
+Cloning into 'gitskills'...
+remote: Enumerating objects: 3, done.
+remote: Counting objects: 100% (3/3), done.
+remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+Receiving objects: 100% (3/3), done.
+```
+
+此时工作区生成了一个 `gitskills` 目录，目录中包含了一个 `README.md` 文件：
+
+```bash
+$ cd gitskills
+$ ls
+README.md
 ```
 
