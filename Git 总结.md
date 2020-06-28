@@ -421,3 +421,269 @@ nothing to commit, working tree clean
 ![git-stage-after-commit](https://www.liaoxuefeng.com/files/attachments/919020100829536/0)
 
 当前暂存区没有任何待提交文件。
+
+## 8. 管理修改
+
+Git 跟踪并管理的是修改记录（例如新增或删除一行，修改或删除一个字符，创建或删除一个文件），而非文件本身。
+
+例如，对 `readme.txt` 做一个修改：
+
+```txt
+Git is a distributed version control system.
+Git is free software distributed under the GPL.
+Git has a mutable index called stage.
+Git tracks changes.
+```
+
+然后再添加：
+
+```bash
+$ git add readme.txt
+$ git status
+On branch master
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	modified:   readme.txt
+```
+
+结果显示当前有一个文件被添加至暂存区，但尚未被提交。
+
+再修改 `readme.txt`：
+
+```txt
+Git is a distributed version control system.
+Git is free software distributed under the GPL.
+Git has a mutable index called stage.
+Git tracks changes of files.
+```
+
+提交：
+
+```bash
+$ git commit -m "git tracks changes"
+[master 519219b] git tracks changes
+ 1 file changed, 1 insertion(+)
+```
+
+再查看状态：
+
+```bash
+$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   readme.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+结果显示，还有一个文件在工作区被修改，但尚未添加至暂存区。
+
+操作过程：第一次修改 -> `git add` -> 第二次修改 -> `git commit`
+
+`git commit` 仅把暂存区的文件提交至分支，在工作区的第二次修改没有被添加至暂存区，所以没有被提交至分支。
+
+通过 `git diff HEAD -- readme.txt` 查看工作区和版本库当前版本的区别：
+
+```bash
+$ git diff HEAD -- readme.txt 
+diff --git a/readme.txt b/readme.txt
+index 76d770f..a9c5755 100644
+--- a/readme.txt
++++ b/readme.txt
+@@ -1,4 +1,4 @@
+ Git is a distributed version control system.
+ Git is free software distributed under the GPL.
+ Git has a mutable index called stage.
+-Git tracks changes.
++Git tracks changes of files.
+```
+
+结果显示，第二次修改并未提交。
+
+可以通过 `git add` 和 `git commit` 继续将第二次修改添加至暂存区并提交。也可以 `git add` 添加两次修改，最后再 `git commit` 提交至分支，相当于把两次修改合并后再提交至分支。
+
+## 9. 撤销修改
+
+如果在 `reaedme.txt` 文件中不小心添加了一行：
+
+```txt
+Git is a distributed version control system.
+Git is free software distributed under the GPL.
+Git has a mutable index called stage.
+Git tracks changes of files.
+My stupid boss still prefers SVN.
+```
+
+此时，修改尚未被添加至暂存区。用 `git status` 查看状态：
+
+```bash
+$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   readme.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+ 结果显示，有一个文件被修改，但尚未被添加至暂存区。
+
+可以通过 `git checkout -- <file>` 丢弃工作区的修改：
+
+```txt
+$ git checkout -- readme.txt
+```
+
+`git checkout -- <file>` 命令其实是用版本库里的版本替换工作区的版本，无论工作区是修改还是删除。
+
+用 `git checkout -- <file>` 撤销修改有两种情况：
+
+- 文件在工作区被修改，但尚未添加至暂存区。
+
+  此时，撤销修改就回到当前版本库的状态。
+
+- 文件在被添加至暂存区后，在工作区又被修改。
+
+  此时，撤销修改就回到暂存区的状态。
+
+总之，让文件回到最近一次 `git commit` 或 `git add` 时的状态。
+
+再次查看 `readme.txt` 内容：
+
+```bash
+$ cat readme.txt
+Git is a distributed version control system.
+Git is free software distributed under the GPL.
+Git has a mutable index called stage.
+Git tracks changes of files.
+```
+
+结果显示，原先工作区的修改已经被撤回。
+
+如果在 `readme.txt` 中修改了文件，并添加到了暂存区：
+
+```bash
+$ cat readme.txt
+Git is a distributed version control system.
+Git is free software distributed under the GPL.
+Git has a mutable index called stage.
+Git tracks changes of files.
+My stupid boss still prefers SVN.
+
+$ git add readme.txt
+```
+
+通过 `git status` 查看状态：
+
+```bash
+$ git status
+On branch master
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	modified:   readme.txt
+```
+
+此时，修改尚未被提交至分支。
+
+通过 `git reset HEAD <file>` 可以把暂存区的修改撤销（unstage），重新放回工作区：
+
+```bash
+$ git reset HEAD readme.txt
+Unstaged changes after reset:
+M	readme.txt
+```
+
+`git reset` 命令既可以回退版本，也可以把暂存区的修改回退到工作区。当用 `HEAD` 时，表示最新的版本。
+
+再次查看状态：
+
+```bash
+$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   readme.txt
+```
+
+结果显示，工作区有修改，但尚未被添加至暂存区（not staged）。
+
+丢弃工作区修改：
+
+```bash
+$ git checkout -- readme.txt
+
+$ git status
+On branch master
+nothing to commit, working tree clean
+```
+
+结果显示，当前没有被修改但尚未被添加至暂存区的文件（clean）。
+
+如果将误修改的文件添加并提交至分支，通过 `git reset HEAD^` 版本回退命令可以回退到原来的版本。前提条件是，自己的本地库还没有被推送到远程库。
+
+## 10. 删除修改
+
+在 Git 中，删除也是一个操作。先在工作区创建一个 `test.txt` 文件，并添加提交至版本库：
+
+```bash
+$ cat test.test
+This is a test.
+
+$ git add test.txt
+
+$ git commit -m "add test.txt"
+[master b84166e] add test.txt
+ 1 file changed, 1 insertion(+)
+ create mode 100644 test.txt
+```
+
+如果在工作区删除该文件：
+
+```bash
+$ rm test.txt
+```
+
+此时，Git 知道用户改动了文件，工作区和版本库不一致。通过 `git status`  查看当前状态：
+
+```bash
+$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	deleted:    test.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+结果显示，工作区的文件已被删除，但该改动还未添加到暂存区。
+
+可以通过 `git rm` 删除版本库中的文件， 并提交至版本库：
+
+```bash
+$ git rm test.txt
+rm 'test.txt'
+
+$ git commit -m "remove test.txt"
+[master d46f35e] remove test.txt
+ 1 file changed, 1 deletion(-)
+ delete mode 100644 test.txt
+```
+
+另一种情况是文件被误删，通过 `git checkout` 命令从版本库中恢复文件：
+
+```bash
+$ git checkout -- test.txt
+```
+
+`git checkout` 其实是用版本库里的版本替换工作区的版本，无论工作区是修改还是删除，都可以“一键还原”。
