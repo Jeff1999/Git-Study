@@ -687,3 +687,89 @@ $ git checkout -- test.txt
 ```
 
 `git checkout` 其实是用版本库里的版本替换工作区的版本，无论工作区是修改还是删除，都可以“一键还原”。
+
+## 11. 远程仓库简介
+
+Git 是分布式版本控制系统。同一个 Git 仓库，可以分布到不同的机器上。最早，肯定只有一台机器有一个原始版本库，此后，别的机器可以“克隆”这个原始版本库，而且每台机器的版本库其实都是一样的，并没有主次之分。
+
+在实际应用中，GitHub 网站充当一台 24 小时开机的服务器，每个人都从这个服务器仓库克隆一份到自己的电脑上，并且各自把自己的提交推送到服务器仓库里，也可以从服务器仓库中获取别人的提交。
+
+通过注册 GitHub账户，每个人拥有了一个免费的 Git 远程仓库。本地 Git 仓库与 GitHub 仓库之间的传输通过 SSH 加密，所以需要一下设置：
+
+- 第一步：创建 SSH Key
+
+  在目录 `C:\Users\DELL\.ssh` 下查找 `is_rsa` 和 `is_rsa.pub` 文件。`id_rsa` 是私钥，`is_rsa.pub` 是公钥，两个文件共同构成密钥对。
+
+  如果没有相应的 `.ssh` 目录，打开 Git Bash，创建 SSH Key：
+
+  ```bash
+  $ ssh-keygen -t rsa -C "yifan-luo@qq.com"
+  ```
+
+  无需设置密码，一直回车，完成 SSH Key 的生成。
+
+- 第二步：添加 SSH Key
+
+  按照下图进行操作：
+
+  ![github-addkey-1](https://www.liaoxuefeng.com/files/attachments/919021379029408/0)
+
+  点击“Add Key”：
+
+  ![github-addkey-2](https://www.liaoxuefeng.com/files/attachments/919021395420160/0)
+
+GitHub 通过识别 SSH Key 来判断提交确实是由本人推送的，而不是别人冒充的。GitHub 知道了用户的公钥，通过与私钥配对实现身份识别。GitHub 允许用户添加多个 Key，只需把每台电脑的 Key 都添加到 GitHub 即可。
+
+在 GitHub 上免费托管的仓库可以被任何人看到，尽量不要把敏感信息推送至 Git 远程仓库。用户也可以创建自己的 Git 服务器。
+
+## 12. 添加远程仓库
+
+首先，在 GitHub 创建一个远程仓库，命名为 “learngit”：
+
+![github-create-repo-1](https://www.liaoxuefeng.com/files/attachments/919021631860000/0)
+
+![github-create-repo-2](https://www.liaoxuefeng.com/files/attachments/919021652277920/0)
+
+GitHub 提示我们：
+
+- 可以克隆出新的仓库
+- 可以关联到一个已有的本地仓库，再把本地仓库推送到远程仓库
+
+根据 GitHub 提示，在本地的 `learngit` 仓库下运行如下命令：
+
+```bash
+$ git remote add origin git@github.com:Jeff1999/learngit.git
+```
+
+添加后，远程库的默认名称为 `origin`。
+
+下一步，将本地库的所有内容推送到远程库上：
+
+```bash
+$ git push -u origin master
+Enumerating objects: 23, done.
+Counting objects: 100% (23/23), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (18/18), done.
+Writing objects: 100% (23/23), 1.88 KiB | 385.00 KiB/s, done.
+Total 23 (delta 6), reused 0 (delta 0)
+remote: Resolving deltas: 100% (6/6), done.
+To github.com:Jeff1999/learngit.git
+ * [new branch]      master -> master
+Branch 'master' set up to track remote branch 'master' from 'origin'.
+```
+
+`git push` 命令将当前分支 `master` 推送到远程。
+
+由于远程库是空的，当第一次推送 `master` 分支时要加上参数 `-u`，使得 Git 不但会把本地库的 `master` 分支内容推送到远程库的 `master` 分支，还会将本地的 `master` 分支与远程的 `master` 分支关联起来，在以后的推送或拉取时可以简化命令。
+
+推送成功后，可以在 GitHub 上看到远程库的内容和本地库已经一模一样：
+
+![github-repo](https://www.liaoxuefeng.com/files/attachments/919021675995552/0)
+
+今后，只要在本地做了提交，就可以通过以下命令将本地的 `master` 分支的最新版本推送至 GitHub：
+
+```bash
+$ git push origin master
+```
+
