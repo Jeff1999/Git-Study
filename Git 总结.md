@@ -17,8 +17,6 @@
   * [12. 添加远程仓库](#12-------)
   * [13. 从远程库克隆](#13-------)
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
-
 ## 1. Git 简介
 
 - Git 是目前最先进的分布式版本控制系统
@@ -34,6 +32,8 @@
   集中式：每个人拥有一个完整的版本库，但通常分布式版本控制系统有一台充当“中央服务器”的电脑，用于方便大家交换数据。![distributed-repo](https://www.liaoxuefeng.com/files/attachments/918921562236160/l)
 
   分布式系统安全性更高，当某个人电脑出现问题时，只需从他处复制一份即可。而集中式系统一旦中央服务器出现问题，所有人都无法继续工作。
+  
+  [返回至目录](#git---)
 
 ## 2. Windows 下 Git 的安装与配置
 
@@ -43,6 +43,8 @@ $ git config --global user.email "yifan-luo@qq.com"  # 邮箱
 ```
 
 `git config` 命令的 `--global` 参数表示这台机器上所有的 Git 仓库都会使用这个配置。当然也可以对某个仓库指定不同的用户名和邮箱账户。
+
+[返回至目录](#git---)
 
 ## 3. 创建并初始化 Git 版本库
 
@@ -60,6 +62,8 @@ Initialized empty Git repository in /Users/michael/learngit/.git/
 新生成的 `.git` 隐藏目录用来跟踪管理版本库，禁止随意手动修改其下文件。
 
 除了在空目录下创建 Git 仓库，也可以在已经生成的目录下创建 Git 仓库。
+
+[返回至目录](#git---)
 
 ## 4. 添加并提交文件
 
@@ -98,6 +102,8 @@ $ git add file1.txt
 $ git add file2.txt file3.txt      # 添加多个文件 
 $ git commit -m "add 3 files."
 ```
+
+[返回至目录](#git---)
 
 ## 5. 查看当前状态和修改内容
 
@@ -176,6 +182,8 @@ nothing to commit, working tree clean
 ```
 
 结果显示，没有待添加和提交的文件（nothing to commit），工作目录是干净的（clean）。
+
+[返回至目录](#git---)
 
 ## 6. 版本回退
 
@@ -348,6 +356,8 @@ e475afc HEAD@{3}: commit: add distributed
 eaadf4e HEAD@{4}: commit (initial): wrote a readme file
 ```
 
+[返回至目录](#git---)
+
 ## 7. 工作区与缓存区
 
 - 工作区（Working Directory）
@@ -441,6 +451,8 @@ nothing to commit, working tree clean
 
 当前暂存区没有任何待提交文件。
 
+[返回至目录](#git---)
+
 ## 8. 管理修改
 
 Git 跟踪并管理的是修改记录（例如新增或删除一行，修改或删除一个字符，创建或删除一个文件），而非文件本身。
@@ -524,6 +536,8 @@ index 76d770f..a9c5755 100644
 结果显示，第二次修改并未提交。
 
 可以通过 `git add` 和 `git commit` 继续将第二次修改添加至暂存区并提交。也可以 `git add` 添加两次修改，最后再 `git commit` 提交至分支，相当于把两次修改合并后再提交至分支。
+
+[返回至目录](#git---)
 
 ## 9. 撤销修改
 
@@ -649,6 +663,8 @@ nothing to commit, working tree clean
 
 如果将误修改的文件添加并提交至分支，通过 `git reset HEAD^` 版本回退命令可以回退到原来的版本。前提条件是，自己的本地库还没有被推送到远程库。
 
+[返回至目录](#git---)
+
 ## 10. 删除修改
 
 在 Git 中，删除也是一个操作。先在工作区创建一个 `test.txt` 文件，并添加提交至版本库：
@@ -707,6 +723,8 @@ $ git checkout -- test.txt
 
 `git checkout` 其实是用版本库里的版本替换工作区的版本，无论工作区是修改还是删除，都可以“一键还原”。
 
+[返回至目录](#git---)
+
 ## 11. 远程仓库简介
 
 Git 是分布式版本控制系统。同一个 Git 仓库，可以分布到不同的机器上。最早，肯定只有一台机器有一个原始版本库，此后，别的机器可以“克隆”这个原始版本库，而且每台机器的版本库其实都是一样的，并没有主次之分。
@@ -740,6 +758,8 @@ Git 是分布式版本控制系统。同一个 Git 仓库，可以分布到不�
 GitHub 通过识别 SSH Key 来判断提交确实是由本人推送的，而不是别人冒充的。GitHub 知道了用户的公钥，通过与私钥配对实现身份识别。GitHub 允许用户添加多个 Key，只需把每台电脑的 Key 都添加到 GitHub 即可。
 
 在 GitHub 上免费托管的仓库可以被任何人看到，尽量不要把敏感信息推送至 Git 远程仓库。用户也可以创建自己的 Git 服务器。
+
+[返回至目录](#git---)
 
 ## 12. 添加并推送至远程仓库
 
@@ -792,6 +812,8 @@ Branch 'master' set up to track remote branch 'master' from 'origin'.
 $ git push origin master
 ```
 
+[返回至目录](#git---)
+
 ## 13. 从远程库克隆
 
 首先，登陆 GitHub 并创建一个新的仓库 `gitskills`：
@@ -819,11 +841,15 @@ $ ls
 README.md
 ```
 
+[返回至目录](#git---)
+
 ## 14. 分支管理简介 
 
 Git 的分支管理使得用户可以创建自己的分支，并且他人无法看到。用户在自己的分支上工作，可以随意提交至自己的分支。直到结束工作，将自己的分支合并到原来的分支上。这样既安全，又不会影响别人工作。
 
 Git 的分支管理与 SVN 不同，无论创建、切换和删除分支，无论版本库有多少个文件，都可以在 1 秒内完成。
+
+[返回至目录](#git---)
 
 ## 15. 创建与合并分支
 
@@ -946,6 +972,8 @@ $ git branch
   ```bash
   $ git switch master
   ```
+
+[返回至目录](#git---)
 
 ## 16. 解决冲突
 
@@ -1137,3 +1165,4 @@ $ git branch
 * master
 ```
 
+[返回至目录](#git---)
