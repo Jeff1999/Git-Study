@@ -1,3 +1,5 @@
+
+
 # Git 总结
 
 - [Git 总结](#git---)
@@ -817,7 +819,7 @@ $ ls
 README.md
 ```
 
-## 14. 分支管理简介
+## 14. 分支管理简介 
 
 Git 的分支管理使得用户可以创建自己的分支，并且他人无法看到。用户在自己的分支上工作，可以随意提交至自己的分支。直到结束工作，将自己的分支合并到原来的分支上。这样既安全，又不会影响别人工作。
 
@@ -931,7 +933,7 @@ $ git branch
 
 因为创建、合并和删除指针都非常快，Git 鼓励用户使用分支完成某个任务，合并后在删掉分支。和直接在 `master` 分支上工作效果一样，但过程更安全。
 
-- switch
+- `switch`
 
   在新版本中，创建分支可以用 `git switch -c` 来代替 `git checkout -b`：
 
@@ -945,4 +947,193 @@ $ git branch
   $ git switch master
   ```
 
-  
+## 16. 解决冲突
+
+创建一个新分支 `feature1`：
+
+```bash
+$ git switch -c feature1
+Switched to a new branch 'feature1'
+```
+
+修改 `readme.txt` 的最后一行：
+
+```bash
+$ cat readme.txt
+Git is a distributed version control system.
+Git is free software distributed under the GPL.
+Git has a mutable index called stage.
+Git tracks changes of files.
+Creating a new branch is quick AND simple.
+```
+
+在 `featuer1` 分支上提交：
+
+```bash
+$ git add readme.txt
+$ git commit -m "AND simple"
+[feature1 14096d0] AND simple
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+```
+
+用 `git log --graph` 命令查看当前分支情况：
+
+```bash
+$ git log --graph --pretty=oneline --abbrev-commit
+* dbc7f31 (HEAD -> feature1) AND simple
+* 5f3a738 (origin/master, master) branch test
+* f9a6701 rm test.txt
+* eb7e82a test
+* c469748 git tracks changes of files
+* b5f02fc git tracks changes
+* f1f4032 understand how stage works
+* 7a3b38c add some words in readme.txt
+* f04401e fix a word in readme.txt
+* 8a90550 update readme.txt
+```
+
+切换到 `master` 分支：
+
+```bash
+$ git switch master
+Switched to branch 'master'
+Your branch is up to date with 'origin/master'.
+```
+
+此时，`readme.txt` 文件还是原来的内容：
+
+```bash
+$ cat readme.txt
+Git is a distributed version control system.
+Git is free software distributed under the GPL.
+Git has a mutable index called stage.
+Git tracks changes of files.
+Creating a new branch is quick.
+```
+
+在 `master` 分支上再次修改 `readme.txt` 的最后一行：
+
+```bash
+$ cat readme.txt
+Git is a distributed version control system.
+Git is free software distributed under the GPL.
+Git has a mutable index called stage.
+Git tracks changes of files.
+Creating a new branch is quick & simple.
+```
+
+提交：
+
+```bash
+$ git add readme.txt 
+$ git commit -m "& simple"
+[master 5dc6824] & simple
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+```
+
+现在，`readme.txt` 和 `feature1` 分支各自都分别有新的提交：
+
+![git-br-feature1](https://www.liaoxuefeng.com/files/attachments/919023000423040/0)
+
+这种情况下，Git 无法执行“快速合并”，只能试图把各自的修改合并起来，但会产生冲突：
+
+```bash
+$ git merge feature1
+Auto-merging readme.txt
+CONFLICT (content): Merge conflict in readme.txt
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+Git 告诉我们 `readme.txt` 文件发生了冲突，必须手动解决冲突后再提交。
+
+`git status` 也会告诉我们冲突的文件：
+
+```bash
+$ git status
+On branch master
+Your branch is ahead of 'origin/master' by 2 commits.
+  (use "git push" to publish your local commits)
+
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+
+	both modified:   readme.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+查看此时的 `readme.txt` 文件的内容：
+
+```bash
+$ cat readme.txt
+Git is a distributed version control system.
+Git is free software distributed under the GPL.
+Git has a mutable index called stage.
+Git tracks changes of files.
+<<<<<<< HEAD
+Creating a new branch is quick & simple.    # 当前分支 master
+=======
+Creating a new branch is quick AND simple.  # 其他分支 feature1
+>>>>>>> feature1
+```
+
+Git用 `<<<<<<<`，`=======`，`>>>>>>>` 标记出不同分支的内容，在此修改如下后保存：
+
+```bash
+$ cat readme.txt
+Git is a distributed version control system.
+Git is free software distributed under the GPL.
+Git has a mutable index called stage.
+Git tracks changes of files.
+Creating a new branch is quick and simple    # 在 master 分支修改内容
+```
+
+再提交：
+
+```bash
+$ git add readme.txt 
+$ git commit -m "conflict fixed"
+[master cf810e4] conflict fixed
+```
+
+此时的分支情况：
+
+![git-br-conflict-merged](https://www.liaoxuefeng.com/files/attachments/919023031831104/0)
+
+用 `git log --graph` 命令查看当前分支情况：
+
+```bash
+$ git log --graph --pretty=oneline --abbrev-commit
+*   cf810e4 (HEAD -> master) conflict fixed
+|\  
+| * 14096d0 (feature1) AND simple
+* | 5dc6824 & simple
+|/  
+* b17d20e branch test
+* d46f35e (origin/master) remove test.txt
+* b84166e add test.txt
+* 519219b git tracks changes
+* e43a48b understand how stage works
+* 1094adb append GPL
+* e475afc add distributed
+* eaadf4e wrote a readme file
+```
+
+最后，删除 `feature1` 分支：
+
+```bash
+$ git branch -d feature1
+Deleted branch feature1 (was 14096d0).
+```
+
+最终只有一个分支 `master`：
+
+```bash
+$ git branch
+* master
+```
+
