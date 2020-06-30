@@ -1,26 +1,8 @@
 
 
-# Git 总结
+# Git - Notebook
 
-- [Git 总结](#git---)
-  * [1. Git 简介](#1-git---)
-  * [2. Windows 下 Git 的安装与配置](#2-windows---git-------)
-  * [3. 创建并初始化 Git 版本库](#3--------git----)
-  * [4. 添加并提交文件](#4--------)
-  * [5. 查看当前状态和修改内容](#5------------)
-  * [6. 版本回退](#6-----)
-  * [7. 工作区与缓存区](#7--------)
-  * [8. 管理修改](#8-----)
-  * [9. 撤销修改](#9-----)
-  * [10. 删除修改](#10-----)
-  * [11. 远程仓库简介](#11-------)
-  * [12. 添加并推送至远程仓库](#12-----------)
-  * [13. 从远程库克隆](#13-------)
-  * [14. 分支管理简介](#14-------)
-  * [15. 创建与合并分支](#15--------)
-  * [16. 解决冲突](#16-----)
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 ## 1. Git 简介
 
@@ -1122,7 +1104,7 @@ Git is a distributed version control system.
 Git is free software distributed under the GPL.
 Git has a mutable index called stage.
 Git tracks changes of files.
-Creating a new branch is quick and simple    # 在 master 分支修改内容
+Creating a new branch is quick and simple  # 在 master 分支修改
 ```
 
 再提交：
@@ -1170,3 +1152,79 @@ $ git branch
 * master
 ```
 
+
+
+## 17. 分支管理策略
+
+通常， 合并分支时，Git 会用 `Fast forward` 模式，但这种模式下，删除分支后会丢掉分支信息。
+
+如果强制禁用 `Fast forward` 模式后，Git 会在合并分支时生成一个新的 `commmit`。这样，从分支历史上可以看到分支信息。
+
+首先，创建并切换到 `dev` 分支：
+
+```bash
+$ git switch -c dev
+Switched to a new branch 'dev'
+```
+
+修改 `readme.txt` 文件，并提交：
+
+```bash
+$ cat readme.txt
+Git is a distributed version control system.
+Git is free software distributed under the GPL.
+Git has a mutable index called stage.
+Git tracks changes of files.
+Creating a new branch is quick and simple.
+Testing new merge method.
+```
+
+```bash
+$ git add readme.txt 
+$ git commit -m "add merge"
+[dev f52c633] add merge
+ 1 file changed, 1 insertion(+)
+```
+
+现在，切换回 `master`：
+
+```bash
+$ git switch master
+Switched to branch 'master'
+Your branch is up to date with 'origin/master'.
+```
+
+准备与 `dev` 分支合并，参数采用 `--no-ff`，表示禁用 `Fast forward` 模式：
+
+```bash
+$ git merge --no-ff -m "merge with no-ff" dev
+Merge made by the 'recursive' strategy.
+ readme.txt | 1 +
+ 1 file changed, 1 insertion(+)
+```
+
+本次合并分支创建了一个新的 `commit`，所以加上 `-m` 参数，用来描述内容。
+
+查看分支历史：
+
+```bash
+$ git log --graph --pretty=oneline --abbrev-commit
+*   e1e9c68 (HEAD -> master) merge with no-ff
+|\  
+| * f52c633 (dev) add merge
+|/  
+*   cf810e4 conflict fixed
+...
+```
+
+可以看到，采用 `--no-ff` 参数后，合并后的路径图发生变化：
+
+![git-no-ff-mode](https://www.liaoxuefeng.com/files/attachments/919023225142304/0)
+
+禁用 `Fast forward` 模式后，会在合并时创建一个新的节点，附有新的 `commit` 信息。
+
+使用 `Fast forward` 时：
+
+![git-br-ff-merge](https://www.liaoxuefeng.com/files/attachments/919022412005504/0)
+
+两个分支共用一个节点，`dev` 分支原来的 `commit` 信息被覆盖。
