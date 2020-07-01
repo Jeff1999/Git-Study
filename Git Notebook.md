@@ -1259,3 +1259,166 @@ $ git log --graph --pretty=oneline --abbrev-commit
 
 ## 18. Bug 分支
 
+在软件开发中，每个 bug 都可以用过一个新的临时分支来修复。修复后，合并分支，再删除该临时分支。
+
+当遇到一个代号 101 的 bug 任务时，需要创建一个 `issur-101` 分支来修复它。但是，当前 `dev` 分支上进行的工作还没有提交：
+
+```bash
+$ git status
+On branch dev
+Changes to be committed:        # 创建了一个新的文件，添加至暂存区，但尚未提交
+  (use "git restore --staged <file>..." to unstage)
+        new file:   hello.py
+
+Changes not staged for commit:  # 修改了 readme 文件，但尚未添加至暂存区
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   readme.txt
+```
+
+Git 提供了一个 `stash` 功能，可以把当前工作现场“储藏”起来，等以后恢复现场后继续工作：
+
+```bash
+$ git stash    # 用于临时保存和恢复修改，可跨分支
+Saved working directory and index state WIP on dev: 9d0f0f9 merge with no-ff
+```
+
+现在，用 `git status` 查看工作区：
+
+```bash
+$ git status
+On branch dev
+nothing to commit, working tree clean
+```
+
+此时，`dev` 分支没有未添加或未提交的文件，因为上述修改已经被 `stash` 储藏起来。
+
+假设需要在 `master` 分支上修复 bug，就从 `master` 上创建临时分支：
+
+```bash
+$ git switch master
+Switched to branch 'master'
+Your branch is up to date with 'origin/master'.
+
+$ git switch -c issue-101
+Switched to a new branch 'issue-101'
+```
+
+此时的分支情况：
+
+```bash
+$ git log --graph --pretty=oneline --abbrev-commit
+*   9d0f0f9 (HEAD -> issue-101, origin/master, master, dev) merge with no-ff
+|\
+| * ab781c0 add merge
+|/
+* a4f66df test
+*   9a0f5c4 conflict fixed
+...
+```
+
+现在需要修复 bug，需要把 “Git is free software…” 修改为 “Git is a free software…”：
+
+```bash
+$ cat readme.txt
+Git is a distributed version control system.
+Git is a free software distributed under the GPL.
+Git has a mutable index called stage.
+Git tracks changes of files.
+Creating a new branch is quick and simple.
+Testing new merge method.
+
+$ git add readme.txt 
+
+$ git commit -m "fix bug 101"
+[issue-101 4c805e2] fix bug 101
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+```
+
+修复完成后，切换到 `master` 分支，合并 `issue-101` 分支，最后删除 `issue-101` 分支：
+
+```bash
+$ git merge --no-ff -m "mergerd bug fix 101" issue-101
+Merge made by the 'recursive' strategy.
+ readme.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+```
+
+当前分支情况：
+
+```bash
+$ git log --graph --pretty=oneline --abbrev-commit
+*   3be0b9e (HEAD -> master) mergerd bug fix 101
+|\
+| * b241e17 (issue-101) fix bug 101
+|/
+*   9d0f0f9 (origin/master, dev) merge with no-ff
+|\
+| * ab781c0 add merge
+|/
+* a4f66df test
+...
+```
+
+删除 `issue-101` 分支：
+
+```bash
+$ git branch -d issue-101
+Deleted branch issue-101 (was b241e17).
+```
+
+现在需要恢复 `dev` 分支的工作，首先查看当前的 `stash list`：
+
+```bash
+$ git stash list
+stash@{0}: WIP on dev: 9d0f0f9 merge with no-ff
+```
+
+恢复工作现场有两种方式：
+
+- `git stash apply` 恢复后，用 `git stash drop` 删除；
+- 直接用 `git stash pop` 恢复并删除。
+
+```bash
+$ git stash pop
+Auto-merging readme.txt
+On branch master
+Your branch is ahead of 'origin/master' by 2 commits.
+  (use "git push" to publish your local commits)
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        new file:   hello.py
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   readme.txt
+
+Dropped refs/stash@{0} (682cbf4f91b7924c25f19f27af30e48bbd98878c)
+```
+
+再次查看 `stash lsit`，显示没有任何内容：
+
+```bash
+$ git stash list
+```
+
+可以多次stash，恢复的时候，先用 `git stash list` 查看，然后恢复指定的 `stash`，用命令：
+
+```bash
+$ git stash apply stash@{0}
+```
+
+同样的 bug，在分支 `dev` 上修复，只需要把  `b241e17 fix bug 101` 这个提交所作的修改“复制”到 `dev` 分支，并不是与整个 `master` 分支合并。
+
+Git 使用 `cherry-pick` 命令，复制一个特定的提交到当前分支：
+
+```bash
+$ git cherry-pick b241e17
+[dev 589519d] fix bug 101
+ Date: Wed Jul 1 09:54:06 2020 +0800
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+```
+
+`cherry-pick` 命令自动生成一个 `commit` ，id 是 `589519d`，不同于 `master` 的 `3be0b9e`。因为虽然这两次提交的改动相同，但却是不同的提交。
