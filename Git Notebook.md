@@ -1,5 +1,3 @@
-
-
 # Git - Notebook
 
 
@@ -26,6 +24,7 @@
 
 ```bash
 $ git config --global user.name "Jeff1999"           # 用户名
+
 $ git config --global user.email "yifan-luo@qq.com"  # 邮箱
 ```
 
@@ -39,9 +38,12 @@ $ git config --global user.email "yifan-luo@qq.com"  # 邮箱
 
 ```bash
 $ mkdir learngit          # 创建空目录
+
 $ cd learngit             # 进入空目录
+
 $ pwd                     # 显示当前路径
 /Users/michael/learngit
+
 $ git init                # 将空目录初始化为 Git 空仓库
 Initialized empty Git repository in /Users/michael/learngit/.git/
 ```
@@ -85,8 +87,10 @@ $ git commit -m 'wrote a readme file'      # 提交文件至仓库
 还可以一次添加多个文件，最后再提交到仓库：
 
 ```bash
-$ git add file1.txt                
+$ git add file1.txt           
+
 $ git add file2.txt file3.txt      # 添加多个文件 
+
 $ git commit -m "add 3 files."
 ```
 
@@ -185,6 +189,7 @@ Git is free software distributed under the GPL.
 
 ```bash
 $ git add readme.txt
+
 $ git commit -m "append GPL"
 [master 1094adb] append GPL
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -404,6 +409,7 @@ no changes added to commit (use "git add" and/or "git commit -a")
 
 ```bash
 $ git add readme.txt LICENSE.txt     
+
 $ git status
 On branch master
 Changes to be committed: 
@@ -457,6 +463,7 @@ Git tracks changes.
 
 ```bash
 $ git add readme.txt
+
 $ git status
 On branch master
 Changes to be committed:
@@ -824,6 +831,7 @@ Receiving objects: 100% (3/3), done.
 
 ```bash
 $ cd gitskills
+
 $ ls
 README.md
 ```
@@ -863,6 +871,7 @@ Switched to a new branch 'dev'
 
 ```bash
 $ git branch dev          # 创建分支
+
 $ git checkout dev        # 切换分支
 Switched to branch 'dev'
 ```
@@ -896,6 +905,7 @@ Creating a new branch is quick.      # 新添加的文字
 
 ```bash
 $ git add readme.txt 
+
 $ git commit -m "branch test"
 [dev b17d20e] branch test
  1 file changed, 1 insertion(+)
@@ -986,6 +996,7 @@ Creating a new branch is quick AND simple.
 
 ```bash
 $ git add readme.txt
+
 $ git commit -m "AND simple"
 [feature1 14096d0] AND simple
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -1041,6 +1052,7 @@ Creating a new branch is quick & simple.
 
 ```bash
 $ git add readme.txt 
+
 $ git commit -m "& simple"
 [master 5dc6824] & simple
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -1111,6 +1123,7 @@ Creating a new branch is quick and simple  # 在 master 分支修改
 
 ```bash
 $ git add readme.txt 
+
 $ git commit -m "conflict fixed"
 [master cf810e4] conflict fixed
 ```
@@ -1181,6 +1194,7 @@ Testing new merge method.
 
 ```bash
 $ git add readme.txt 
+
 $ git commit -m "add merge"
 [dev f52c633] add merge
  1 file changed, 1 insertion(+)
@@ -1228,3 +1242,20 @@ $ git log --graph --pretty=oneline --abbrev-commit
 ![git-br-ff-merge](https://www.liaoxuefeng.com/files/attachments/919022412005504/0)
 
 两个分支共用一个节点，`dev` 分支原来的 `commit` 信息被覆盖。
+
+- 分支策略
+
+  在实际开发中，团队成员应该共同遵守一些分支规则：
+
+  `master` 分支应保持稳定，仅用来发布最新版本，平时尽量减少在该分支的修改；
+
+  `dev` 分支是不稳定的，用来进行修改、更新或删除等工作。等到在该分支上实现阶段性更新后，再将内容推送至 `master` 分支；
+
+  团队中的每个成员都应该在 `dev` 分支上建立自己的分支，只要定期往 `dev` 分支上合并起来就可以了。
+
+  ![git-br-policy](https://www.liaoxuefeng.com/files/attachments/919023260793600/0)
+
+
+
+## 18. Bug 分支
+
