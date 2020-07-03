@@ -1276,7 +1276,7 @@ Changes not staged for commit:  # 修改了 readme 文件，但尚未添加至�
         modified:   readme.txt
 ```
 
-Git 提供了一个 `stash` 功能，可以把当前工作现场“储藏”起来，等以后恢复现场后继续工作：
+Git 提供了一个 `stash` 功能，可以把当前工作现场“储藏”起来，可以在之后恢复现场，再继续工作：
 
 ```bash
 $ git stash    # 用于临时保存和恢复修改，可跨分支
@@ -1422,3 +1422,59 @@ $ git cherry-pick b241e17
 ```
 
 `cherry-pick` 命令自动生成一个 `commit` ，id 是 `589519d`，不同于 `master` 的 `3be0b9e`。因为虽然这两次提交的改动相同，但却是不同的提交。
+
+
+
+## 19. Feature 分支
+
+在软件开发过程中，有时需要添加一个新的功能。为了不影响主分支的稳定性，每添加一个功能，最好新建一个 `feature` 分支。在 `feature` 分支上进行开发和合并，最后再删除该分支。
+
+例如，现在需要开发一个代号为 `Vulcan` 的新功能，用于下一代星际飞船：
+
+```bash
+$ git switch -c feature-vulcan
+Switched to a new branch 'feature-vulcan'
+
+$ vi vulcan.py
+```
+
+开发完成后提交：
+
+```bash
+$ git add vulcan.py
+
+$ git commit -m "add feature vulcan"
+[feature-vulcan 287773e] add feature vulcan
+ 1 file changed, 2 insertions(+)
+ create mode 100644 vulcan.py
+```
+
+切回 `dev`，准备合并：
+
+```bash
+$ git switch dev
+```
+
+一切顺利的话，feature分支和bug分支是类似的，合并，然后删除。
+
+就在此时，接到上级命令，因经费不足，新功能必须取消！
+
+删除分支 `feature-vulcan`：
+
+```bash
+$ git branch -d feature-vulcan
+error: The branch 'feature-vulcan' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D feature-vulcan'.
+```
+
+销毁失败。Git 提醒，`feature-vulcan` 分支还没有被合并，如果删除，将丢失掉修改，如果要强行删除，需要使用大写的`-D`参数。
+
+强行删除：
+
+```bash
+$ git branch -D feature-vulcan
+Deleted branch feature-vulcan (was 287773e).
+```
+
+删除成功！
+
