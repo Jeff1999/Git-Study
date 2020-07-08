@@ -1480,7 +1480,7 @@ Deleted branch feature-vulcan (was 287773e).
 
 
 
-## 19. 多人协作
+## 20. 多人协作
 
 当从远程仓库克隆时，实际上 Git 自动把本地的 `master` 分支和远程的 `master` 分支对应起来了。并且，远程仓库的默认名称是 `origin`。
 
