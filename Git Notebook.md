@@ -1478,3 +1478,168 @@ Deleted branch feature-vulcan (was 287773e).
 
 删除成功！
 
+
+
+## 20. 多人协作
+
+当从远程仓库克隆时，实际上 Git 自动把本地的 `master` 分支和远程的 `master` 分支对应起来了。并且，远程仓库的默认名称是 `origin`。
+
+要查看远程库的信息，用 `git remote` 或 `git remote -v`：
+
+```bash
+$ git remote
+origin
+
+$ git remote -v      # 查看详细信息
+origin  git@github.com:Jeff1999/learngit.git (fetch)
+origin  git@github.com:Jeff1999/learngit.git (push)
+```
+
+结果显示，远程仓库 `origin` 可以从本地抓取和推送。如果没有推送权限，就看不到 `push` 的地址。
+
+- 推送分支
+
+  推送分支，即将本地分支上的所有提交都推送到远程库。推送时，要指定本地分支的名称。
+
+  ```bash
+  $ git push origin master   # 推送本地的 master 分支
+  
+  $ git push origin dev      # 推送本地的 dev 分支
+  ```
+
+  - `master` 分支是主分支，要时刻与远程库保持同步；
+
+  - `dev` 分支是开发分支，团队所有成员都需要在上面工作，所以也需要与远程同步；
+
+  - bug 分支只用于在本地修复 bug，没有必要推送到远程；
+  - feature 分支是否推送到远程，取决于是否和他人合作开发。
+
+- 抓取分支
+
+  多人协作时，大家都会向 `master` 和 `dev` 分支上推送各自的修改。
+
+  现在模拟另一个合作开发的同伴，可以在另一台电脑（注意要把 SSH Key 添加到 GitHub），或者在同一台电脑的另一个目录下克隆：
+
+  ```bash
+  $ git clone git@github.com:Jeff1999/learngit.git
+  Cloning into 'learngit'...
+  remote: Enumerating objects: 58, done.
+  remote: Counting objects: 100% (58/58), done.
+  remote: Compressing objects: 100% (32/32), done.
+  remote: Total 58 (delta 19), reused 58 (delta 19), pack-reused 0
+  Receiving objects: 100% (58/58), 5.08 KiB | 1.01 MiB/s, done.
+  Resolving deltas: 100% (19/19), done.
+  ```
+
+  当另一个本地仓库从远程库克隆时，默认情况下只能看到远程仓库的 `master` 分支：
+
+  ```bash
+  $ git branch
+  * master
+  ```
+
+  如果要在 `dev` 分支上开发，就必须克隆远程的 `dev` 分支到该本地仓库：
+
+  ```bash
+  $ git checkout -b dev origin/dev
+  ```
+
+  现在，对方就可以在 `dev` 上继续修改，然后时不时地把 `dev` 分支 `push` 到远程：
+
+  ```bash
+  $ git add env.txt
+  
+  $ git commit -m "add env"
+  [dev 7a5e5dd] add env
+   1 file changed, 1 insertion(+)
+   create mode 100644 env.txt
+  
+  $ git push origin dev
+  Counting objects: 3, done.
+  Delta compression using up to 4 threads.
+  Compressing objects: 100% (2/2), done.
+  Writing objects: 100% (3/3), 308 bytes | 308.00 KiB/s, done.
+  Total 3 (delta 0), reused 0 (delta 0)
+  To github.com:michaelliao/learngit.git
+     f52c633..7a5e5dd  dev -> dev
+  ```
+
+  此时，对方已经向 `origin/dev` 分支推送了他的提交，而碰巧你也对同样的文件作了修改，并试图推送：、
+
+  ```bash
+  $ cat env.txt
+  env
+  
+  $ git add env.txt
+  
+  $ git commit -m "add new env"
+  [dev 7bd91f1] add new env
+   1 file changed, 1 insertion(+)
+   create mode 100644 env.txt
+  
+  $ git push origin dev
+  To github.com:michaelliao/learngit.git
+   ! [rejected]        dev -> dev (non-fast-forward)
+  error: failed to push some refs to 'git@github.com:michaelliao/learngit.git'
+  hint: Updates were rejected because the tip of your current branch is behind
+  hint: its remote counterpart. Integrate the remote changes (e.g.
+  hint: 'git pull ...') before pushing again.
+  hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+  ```
+
+  推送失败，因为对方的最新提交和你试图推送的提交有冲突，解决办法也很简单， Git 已经提示我们，先用 `git pull` 把最新的提交从 `origin/dev` 下来，然后，在本地合并并解决冲突，再推送：
+
+  ```bash
+  $ git pull
+  There is no tracking information for the current branch.
+  Please specify which branch you want to merge with.
+  See git-pull(1) for details.
+  
+      git pull <remote> <branch>
+  
+  If you wish to set tracking information for this branch you can do so with:
+  
+      git branch --set-upstream-to=origin/<branch> dev
+  ```
+
+  `git pull` 也失败了，原因是没有指定本地 `dev` 分支与远程 `origin/dev` 分支的链接，根据提示，设置 `dev` 和 `origin/dev` 的链接：
+
+  ```bash
+  $ git branch --set-upstream-to=origin/dev dev
+  Branch 'dev' set up to track remote branch 'dev' from 'origin'.
+  ```
+
+  再 pull：
+
+  ```bash
+  $ git pull
+  Auto-merging env.txt
+  CONFLICT (add/add): Merge conflict in env.txt
+  Automatic merge failed; fix conflicts and then commit the result.
+  ```
+
+  这回 `git pull` 成功，但是合并有冲突，需要手动解决，解决的方法和分支管理中的[解决冲突](http://www.liaoxuefeng.com/wiki/896043488029600/900004111093344)完全一样。解决后提交，再 push：
+
+  ```bash
+  $ git commit -m "fix env conflict"
+  [dev 57c53ab] fix env conflict
+  
+  $ git push origin dev
+  Counting objects: 6, done.
+  Delta compression using up to 4 threads.
+  Compressing objects: 100% (4/4), done.
+  Writing objects: 100% (6/6), 621 bytes | 621.00 KiB/s, done.
+  Total 6 (delta 0), reused 0 (delta 0)
+  To github.com:michaelliao/learngit.git
+     7a5e5dd..57c53ab  dev -> dev
+  ```
+
+  因此，多人协作的工作模式通常是这样：
+
+  1. 首先，可以试图用 `git push origin <branch-name>` 推送自己的修改；
+  2. 如果推送失败，则因为远程分支比你的本地更新，需要先用 `git pull` 试图合并；
+  3. 如果合并有冲突，则解决冲突，并在本地提交；
+  4. 没有冲突或者解决掉冲突后，再用 `git push origin <branch-name>` 推送就能成功！
+
+  如果 `git pull` 提示 `no tracking information`，则说明本地分支和远程分支的链接关系没有创建，用命令 `git branch --set-upstream-to <branch-name> origin/<branch-name>` 创建链接关系。
+
