@@ -5,6 +5,6 @@ My Git study records and summary followed with [廖雪峰](https://www.liaoxuefe
 
 <br>
 
-SWU Lab 1108
+SWU
 
 2020 / 06 / 28
